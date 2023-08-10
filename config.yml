@@ -1,0 +1,20 @@
+ 
+ ## training
+ epochs: 20
+ batch_size: 32
+
+
+ transfer_learning: "inceptionv3" ## "None", "VGG16" or "inceptionv3"
+
+ model_name: cnn2 ## path name for saving model
+ augmentation: True
+ continue_training: False
+ masked: False
+ processed: True
+
+ seed: 123
+ 
+
+ ## evaluation
+
+ model_path: models/inceptionv3_aug/weights-01-0.79.hdf5
