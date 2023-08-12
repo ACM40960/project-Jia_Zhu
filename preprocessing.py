@@ -3,33 +3,15 @@ import keras
 import tensorflow as tf
 import cv2
 import os
-import shutil
 from keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import load_img
 from PIL import Image
 import imutils
 from matplotlib import pyplot as plt
 from kapur import kapur_threshold
+from utils import create_dir
 
-def create_dir(newdir, empty = True):
-    """
-    create new folder if the target folder doesnt exist
-    """
-    CHECK_FOLDER = os.path.isdir(newdir)
-    # If folder doesn't exist, then create it.
-    if not CHECK_FOLDER:
-        os.makedirs(newdir)
-        print("created folder : ", newdir)
 
-    else:
-        if empty == True:
-            ## whether to remove all contents in the current augmented data folder and generate new ones
-            shutil.rmtree(newdir)
-            print("current augmented data removed")
-            os.makedirs(newdir)
-            
-        print(newdir, "folder already exists.")
-    
 
 ## save the augmented data and the original ones in new folders
 def data_augmentation(refresh=True, num=5):

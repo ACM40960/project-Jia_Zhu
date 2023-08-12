@@ -18,15 +18,18 @@ from keras import applications
 from keras.models import Sequential
 import pickle
 import os
+import json
 from model import CNN1, CNN2, Finetuning
 import yaml
+from utils import from utils import best_model_finder
+
 
 # checkpoint file and early stopping
 
 
 
 
-def model_train(batch_size, nb_epochs, model, model_name, lr):
+def model_train(batch_size, nb_epochs, model, model_name, lr, continue_training):
 
     """train the """
     folderpath = "models/%s/"%model_name
@@ -56,25 +59,29 @@ def model_train(batch_size, nb_epochs, model, model_name, lr):
     # convert the history.history dict to a pandas DataFrame:     
     hist_df = pd.DataFrame(history.history) 
 
+
     # save the history to json:  
+
     hist_json_file = folderpath + 'history.json' 
+
+    ## if in cotinue training mode and history.json file already exists, we want to append new
+    ## evaluation data into the existing file instead of completely overwriting it
+
+    if (continue_training == True) and (os.path.isdir(hist_json_file) == True):
+        df = pd.read_json(hist_json_file)
+        hist_df = pd.concat([df, hist_df])
+        hist_df = hist_df.reset_index(drop=True)
+
+        # Set the index to start from 1
+        hist_df.index = range(0, len(hist_df))
+
+
+
     with open(hist_json_file, mode='w') as f:
         hist_df.to_json(f)
     return model
 
 
-def best_model_finder(mname):
-    folderpath = "models/%s/"%mname
-    max_performance = 0
-    best_model = ""
-    for f in os.listdir(folderpath):
-        if "history" in f: continue
-        perf = float(f.split("-")[2][:4])
-        if perf > max_performance:
-            max_performance = perf
-            best_model = f
-    print("The current best performing model: %s is loaded"%best_model)
-    return(folderpath+best_model)
 
 
 
@@ -109,18 +116,17 @@ if __name__ == "__main__":
             model.build(input_shape = (bs, 512, 512, 1))
             best_model_path = best_model_finder(mname)
             model.load_weights(best_model_path, skip_mismatch=False, by_name=False, options=None)
-        model = model_train(batch_size = bs, nb_epochs = eps, model = model, model_name = mname, lr = lr)
+        model = model_train(batch_size = bs, nb_epochs = eps, model = model, model_name = mname, lr = lr,continue_training = continue_training)
 
 
     else: 
         model = Finetuning(model_type)
 
-
         if continue_training == True:
             model.build(input_shape = (bs, 512, 512, 1))
             best_model_path = best_model_finder(mname)
             model.load_weights(best_model_path, skip_mismatch=False, by_name=False, options=None)
-        model = model_train(batch_size = bs, nb_epochs = eps, model = model, model_name = mname, lr = lr)
+        model = model_train(batch_size = bs, nb_epochs = eps, model = model, model_name = mname, lr = lr, continue_training= continue_training)
 
 
 
