@@ -1,0 +1,22 @@
+ 
+ ## For training
+
+ epochs: 20
+ batch_size: 32
+ learning_rate: 0.0001
+
+
+#  model_name: "VGG19", "inceptionv3","CNN1", "CNN2" 
+
+ model_type: CNN1 ## type of model trained:  "VGG19", "inceptionv3","CNN1", "CNN2" 
+ augmentation: True ## bool, weather to implement data augmentation or not
+ continue_training: True ## if continue from saved weights
+ masked: False ## if masking is applied
+ processed: True 
+
+ seed: 123
+ 
+
+ ## evaluation only
+
+ model_path: models/CNN1_aug/weights-01-0.52.h5
