@@ -21,7 +21,7 @@ import os
 import json
 from model import CNN1, CNN2, Finetuning
 import yaml
-from utils import from utils import best_model_finder
+from utils import best_model_finder
 
 
 # checkpoint file and early stopping
@@ -49,6 +49,7 @@ def model_train(batch_size, nb_epochs, model, model_name, lr, continue_training)
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
+
     history = model.fit(
         train_generator,
         steps_per_epoch = train_generator.samples // batch_size,
@@ -67,7 +68,7 @@ def model_train(batch_size, nb_epochs, model, model_name, lr, continue_training)
     ## if in cotinue training mode and history.json file already exists, we want to append new
     ## evaluation data into the existing file instead of completely overwriting it
 
-    if (continue_training == True) and (os.path.isdir(hist_json_file) == True):
+    if (continue_training == True) and (os.path.exists(hist_json_file) == True):
         df = pd.read_json(hist_json_file)
         hist_df = pd.concat([df, hist_df])
         hist_df = hist_df.reset_index(drop=True)
