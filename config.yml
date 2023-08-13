@@ -1,22 +1,38 @@
  
- ## For training
+ ## For preprocessing
 
- epochs: 20
- batch_size: 32
- learning_rate: 0.0001
-
-
-#  model_name: "VGG19", "inceptionv3","CNN1", "CNN2" 
-
- model_type: CNN1 ## type of model trained:  "VGG19", "inceptionv3","CNN1", "CNN2" 
- augmentation: True ## bool, weather to implement data augmentation or not
- continue_training: True ## if continue from saved weights
- masked: False ## if masking is applied
- processed: True 
-
- seed: 123
+ blur: gaussian ## method for image blurring
+ resized_dim: 256 ## dimension for resized images
  
 
- ## evaluation only
+ ## classes names
 
- model_path: models/CNN1_aug/weights-01-0.52.h5
+ classes: [glioma,meningioma,notumor,pituitary]
+ ## For training
+
+ epochs: 20 ## number of maxmum epochs
+ batch_size: 64 ## batch size
+ learning_rate: 0.0005  ## learnig rate
+
+
+
+ model_type: CNN1 ##  type of model trained:  "VGG19", "inceptionv3", "CNN1",  "CNN2" 
+ augmentation: True ## bool, weather to implement data augmentation or not
+ continue_training: False ## if continue from saved weights
+
+## Don't change these values as they are kept the same in the course of the project
+ masked: False ## if masking is applied
+ processed: True ## if preprocessing is applied
+
+ seed: 123 ## the seed state for data generator
+
+
+ 
+
+ ## Only need to set the following configs for evaluation and predicting
+
+ model_path: models/CNN1_aug/weights-14-0.75.h5
+
+
+ ## only for predicting (For image prediction task)
+ predict_folder : data/predict/  ## the path where images to be predicted are stored

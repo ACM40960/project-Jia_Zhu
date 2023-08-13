@@ -11,19 +11,15 @@ def data_generation(augmentation,  processed = True, masked = False, bs = 32, se
     2. processed: If th processed or original imgages are used for training. 
     3. masked: bool, if the images were masked using Kapur thresholding. When True, the data generator would read the
     images from masked folder instead of the unmasked ones
-    4. bs: batch size of the data generator
-    5. seed: seed state for the data generator
     
     
     """
     with open("config.yml") as f:
         cfg = yaml.load(f, Loader=yaml.FullLoader)
-    img_size = cfg["resized_dim"] ## get the image size 
-    classes = cfg['classes'] ## get the class names from config
+    img_size = cfg["resized_dim"]
     current_directory = os.getcwd()
-    
-    ### depending on if masking and other preprocessing techniques are used, we change the directory for training/validation/testing 
-    ## set accordingly.
+
+    classes = [ 'Glioma', 'Meningioma',  'Pituitary']
     
     masked_ind = ""
     if masked == False:
@@ -36,9 +32,6 @@ def data_generation(augmentation,  processed = True, masked = False, bs = 32, se
         color = 'rgb'
     print("The folder for training data is: %s"%processed_path,"\n", "Color channels: %s"%color)
 
-    ## Data are rescaled, if data augmentation is implemented, we create the tensor image data with real time data-augmentation.
-    ## some augmentation strategies used are: zooming, rotation, brightness change, flipping...
-
     if augmentation == True:
         train_datagen = ImageDataGenerator(rescale=1./255,
             rotation_range = 90, shear_range = 0.4,zoom_range = 0, samplewise_center=True, brightness_range=[0.1, 0.7],
@@ -46,8 +39,6 @@ def data_generation(augmentation,  processed = True, masked = False, bs = 32, se
             validation_split=0.15) # set validation split
     else:
         train_datagen = ImageDataGenerator(rescale=1./255, validation_split=0.15) # set validation split
-
-    ## data flow are generated from directory. each subfolder contains only images of the class of the folder name.
 
     train_generator = train_datagen.flow_from_directory(
         processed_path,
@@ -87,15 +78,13 @@ def data_generation(augmentation,  processed = True, masked = False, bs = 32, se
     return (train_generator,validation_generator)
 
 
-""""
-For test data generation. Shuffle is set to  false for testing data.
-"""
+## test data generating
 
 def test_generation(masked = False, bs = 32):
     with open("config.yml") as f:
         cfg = yaml.load(f, Loader=yaml.FullLoader)
     img_size = cfg["resized_dim"]
-    classes = cfg['classes']  
+    classes = [ 'glioma', 'meningioma', 'notumor', 'pituitary']
     current_directory = os.getcwd()
     
     masked_ind = ""

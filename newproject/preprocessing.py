@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 from kapur import kapur_threshold
 from utils import create_dir
 import yaml
-import argparse
+
 
 ## save the augmented data and the original ones in new folders
 def data_augmentation(refresh=True, num=5):
@@ -280,33 +280,14 @@ def visualize_preprocessing(original_directory, processed_directory, masking=Tru
     visualize_preprocessing_steps(img, blur="median", masking=masking, cropping=cropping) 
 
 if __name__ == "__main__":
-    """
-    we can pass the value of masking as command-line arguments. This is a bool argument,
-    the value of this argument passed through command line when running the script would over-write
-    the value stored in .yml file.
-    
-    """
-
-
     with open("config.yml") as f:
         cfg = yaml.load(f, Loader=yaml.FullLoader)
     blur_method = cfg["blur"]
     masked = cfg["masked"]
     new_size = cfg["resized_dim"]
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--masking",
-        default=masked,
-        type=bool,
-    )
-    args = parser.parse_args()
-    masked = args.masking
-    print("Data will be generate, masking = %d"%masked)
-
     ## preprocess the training data,
     preprocessing(training_path = "data\\Training", blur_method = blur_method, masking = masked)
-    # #preprocessing(training_path = "data\\Training", blur_method = blur_method, masking = masked)
-    # ## preprocessing the testing data, masked and unmasked
+    #preprocessing(training_path = "data\\Training", blur_method = blur_method, masking = masked)
+    ## preprocessing the testing data, masked and unmasked
     #preprocessing(training_path = "data\\Testing", blur_method = blur_method, masking = masked)
     preprocessing(training_path = "data\\Testing", blur_method = blur_method, masking = masked)
