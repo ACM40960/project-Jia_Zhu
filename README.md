@@ -10,9 +10,10 @@ In this project, we aim to distinguish 3 different brain tumor types: glioma(mal
 
 - [How to Use](#how-to-use)
     - [Getting Started](#getting-started)
-    - [Preprocessing](#security)
-    - [Model Training](#security)
-    - [Evaluation and Prediction](#security)
+    - [Preprocessing](#preprocessing)
+    - [Model Training](#model-training)
+    - [Evaluation](#evaluation)
+    - [Rrediction](#prediction)
 - [Image Processing](#page-setup)
 
 
@@ -51,27 +52,27 @@ This command will take the data under data/Training and data/Testing as original
 --masking would specify is masking is used. If set to True, a kapur thresholding method will be applied on the images and mask the umimport parts.
 
 
-## Training
+### Model Training
 
-    ```
+    
      python train.py --model CNN1 --bs 64 --epoch 10 --aug False --c False --lr 0.00001
-    ```
+    
 This piece of code would train a model of type "CNN1" (--model argument), with learning rate (lr) of 0.00001. --bs, --epoch with specify the batch size and epoch number for training. --aug indicates if data augmentation is used, and -c will instruct if the model would continue training from a previously trained model by loading weights from that model(computer will look for the model with the best performance from the folder).
 
 After training, the weights of the model will be stored in the corresponding subfolder under models folder, and a history.json file will also be generated to record the model performance and loss throughout the training process.
 
 
-## Evaluation
+### Evaluation
 
 To evaluate a specific saved model(weights), simply use:
 
-    ```
+    
      python evaluate.py --path models/CNN1_aug/weights-10-0.65.h5
-    ```
+    
 
 where --path specify the path of the saved weights to be evaluated. This code will evaluate this model on the test dataset, print out the confusion matrix and accuracy, precision and recall.
 
-## Prediction
+### Prediction
 
 To classify new images in a specific folder (default folder is data/Predict, can be set in config.yml), use the code
 
