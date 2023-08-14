@@ -30,10 +30,9 @@ if __name__ == "__main__":
     with open("config.yml") as f:
         cfg = yaml.load(f, Loader=yaml.FullLoader)
     eps = cfg["epochs"]
-    masked = cfg["masked"]
     bs = cfg["batch_size"]
     img_size = cfg["resized_dim"]
-    augmentation = cfg["augmentation"]
+
     # lr = cfg["learning_rate"]
 
     ## the path of the model to be evaluated is stored in model_path. We do not need to 
@@ -66,6 +65,12 @@ if __name__ == "__main__":
         model = Finetuning_V2("inceptionv3", img_size)
         # model = Finetuning("inceptionv3", shape) ## for the subclass implementation
 
+    ## detect if masking was used for training this model.
+    masked = False
+    if "masked" in model_path:
+        masked = True
+
+    
 
     ## test data generator
     test_generator = test_generation(masked, bs)
