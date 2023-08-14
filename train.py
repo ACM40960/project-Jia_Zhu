@@ -133,6 +133,7 @@ if __name__ == "__main__":
     parser.add_argument("--bs", default= bs, type=int)
     parser.add_argument("--aug", default= augmentation, type=bool)
     parser.add_argument("--c", default= continue_training, type=str)
+    parser.add_argument("--masking", default= masked, type=bool)
 
     args = parser.parse_args()
     model_type = args.model
@@ -141,12 +142,17 @@ if __name__ == "__main__":
     bs = args.bs
     augmentation = args.aug
     continue_training = args.c
+    masked = args.masking
 
-
+    """
+    saved directory for models will change according to model type and specifications"""
     if augmentation == True:
         mname = model_type + "_aug"
     else:
         mname = model_type + "_aug"
+    if masked == True:
+        mname = "masked_"+ mname
+
 
 
     print("Now training a %s model: , with batch size of %s, maximum %s epochs."%(model_type, bs, eps))
