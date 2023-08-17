@@ -10,7 +10,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
 from keras import backend
 
-from keras import applications
+from tensorflow.keras import applications
 from keras.models import Sequential
 
 import numpy as np

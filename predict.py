@@ -10,7 +10,7 @@ from preprocessing import blur_and_crop
 import os
 from PIL import Image
 import cv2
-
+import argparse
 
 
 """
@@ -38,9 +38,19 @@ if __name__ == "__main__":
     model_path = cfg["model_path"]
     predict_path = cfg["predict_folder"]
     blur = cfg["blur"]
-
     img_size = cfg["resized_dim"]
     shape = (img_size,img_size, 1)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--path",
+        default=model_path,
+        type=str,
+    )
+    args = parser.parse_args()
+    model_path = args.path
+    print("The model to be evaluated is: %s"%model_path)
+
     if "CNN1" in model_path:
         model = CNN1(input_shape = shape) ##  construct the cnn model structure
     elif "CNN2" in model_path:

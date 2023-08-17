@@ -1,0 +1,34 @@
+ 
+ ## For preprocessing
+
+ blur: gaussian ## method for image blurring
+ resized_dim: 256 ## dimension for resized images
+ 
+ ## For training
+
+ epochs: 15 ## number of maxmum epochs
+ batch_size: 64 ## batch size
+ learning_rate: 0.0005  ## learnig rate
+
+
+
+ model_type: VGG19 ##  type of model trained:  "VGG19", "inceptionv3", "CNN1",  "CNN2" 
+ augmentation: True ## bool, weather to implement data augmentation or not
+ continue_training: False ## if continue from saved weights
+
+## Don't change these values as they are kept the same in the course of the project
+ masked: False ## if masking is applied
+ processed: True 
+
+ seed: 123
+
+ 
+ 
+
+ ## Only need to set the following configs for evaluation and predicting
+
+ model_path: models/VGG19_aug/weights-01-0.53.h5
+
+
+ ## only for predicting (For image prediction task)
+ predict_folder : data/predict/  ## the path where images to be predicted are stored
