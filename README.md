@@ -11,7 +11,6 @@ In this project, we aim to distinguish 3 different brain tumor types: glioma(mal
 - [workflow](#workflow)
 - [Preprocessing](#preprocessing)
   - [Masking](#masking)
-  - [Data Augmentation](#data-augmentation)
 - [Model](#model)
   - [CNN models](#cnn-models)
   - [Fine-tuning models](#fine-tuning-models)
@@ -37,28 +36,23 @@ The Brain Tumor MRI Dataset is a collection of 7,023 human brain MRI images, whi
 
 ## Preprocessing
 
+Install the required packages for python in your current environment or create a new environment for this program.
+
+    
+    pip install -r requirements.txt
+
+Run the following script
+
+    
+    python preprocessing.py --masking 1
+    
+
+This command will take the images under data/Training and data/Testing as original data and apply some blurring, masking, cropping and resizing to the images and store the resulting images in folders look like Processed_* or Unmasked_Processed_* depending if masking is used. If folders already exist, the program would clear contents in the folders and store newly processed images in those folders.
+
+`--masking` would specify is masking is used. If set to True, a kapur thresholding method will be applied on the images and mask the umimport parts.
+
 ### Masking
 
-Run the following script:
-
-    
-    python preprosessing.py --masking 1
-    
-
-This command will take the data under data/Training and data/Testing as original data and apply some blurring, masking, cropping and resizing to the images and store the resulting images in the generated folders look like Processed_* or Unmasked_Processed_* depending if masking is used. 
-
---masking would specify is masking is used. If set to True, a kapur thresholding method will be applied on the images and mask the umimport parts.
-
-The following is the masking effect:
-
-<img src="media/processed.png" width="800"/>
-
-
-### Data Augmentation
-
-In the data_loader.py file, there is a function named data_generation, which is responsible for generating training and validation data. When the augmentation parameter is set to True, data augmentation is performed. Data augmentation does not need to be executed separately; it can be controlled during model training by using the command-line argument --aug to determine whether to apply data augmentation.
-
-The data augmentation operations set in this project include: random image rotation, random scaling, random cropping, random flipping, and adjusting image brightness.
 
 The following is the data augmentation effect:
 
@@ -67,7 +61,7 @@ The following is the data augmentation effect:
 
 ## Model
 
-In the model.py file, a total of four models have been constructed – two distinct CNN models and two fine-tuning models that utilize different pre-trained deep learning models as feature extractor.
+In the model.py file, a total of four models have been constructed: two distinct CNN models and two fine-tuning models that utilize different pre-trained deep learning models as feature extractor.
 
 ### CNN models
 
@@ -98,7 +92,11 @@ The structure of the fine-tuning model (with inceptionv3):
     python train.py --model CNN2 --bs 64 --epoch 20 --aug True --c False --lr 0.00001
     
     
-This piece of code would train a model of type "CNN2" (--model argument), with learning rate (lr) of 0.00001. --bs, --epoch with specify the batch size and epoch number for training. --aug indicates if data augmentation is used, and -c will instruct if the model would continue training from a previously trained model by loading weights from that model(computer will look for the model with the best performance from the folder).
+This piece of code would train a model of type "CNN2" (`--model` argument), with learning rate (lr) of 0.00001. `--bs`, `--epoch` with specify the batch size and epoch number for training.
+
+`--aug `indicates if data augmentation is used. The data augmentation operations set in this project include: random image rotation, random scaling, random cropping, random flipping, and adjusting image brightness.
+
+`--c` will instruct the program if the model would continue training from a previously trained model by loading weights from that model(the program will look for the model with the best performance from the folder).
 
 After training, the weights of the model will be stored in the corresponding subfolder under models folder, and a history.json file will also be generated to record the model performance and loss throughout the training process.
 
@@ -108,10 +106,10 @@ After training, the weights of the model will be stored in the corresponding sub
 To evaluate a specific saved model(weights), simply use:
 
     
-     evaluate.py --path models/masked_CNN2_aug/weights-11-0.79.h5
+     python evaluate.py --path models/masked_CNN2_aug/weights-11-0.79.h5
     
 
-where --path specify the path of the saved weights to be evaluated. This code will evaluate this model on the test dataset, print out the accuracy, precision and recall and plot confusion matrices. The code block above evaluate a CNN2 model trained on augmented and masked dataset.
+where `--path` specify the path of the saved weights to be evaluated. This code will evaluate this model on the test dataset, print out the accuracy, precision and recall and plot confusion matrices. The code block above evaluate a CNN2 model trained on augmented and masked dataset.
 
 The output result is as follows:
 
@@ -145,7 +143,7 @@ To classify new images in a specific folder (default folder is data/Predict, can
      python predict.py --path models/masked_CNN2_aug/weights-11-0.79.h5
     
 
-where --path argument specify the model being used for prediction. Prediction results will be printed and all images will be stored under new names where their predicted tumor type will be included in their new file names.
+where `--path` argument specify the model being used for prediction. Prediction results will be printed and all images will be stored under new names where their predicted tumor type will be included in their new file names.
 
 The output result is as follows:
 
@@ -164,13 +162,16 @@ Weights have been loaded, now predicting...
 
 ### Other files
 
-model.py building different CNN and transfer learning architectures
-config.yml some configurations for preprocessing, training, testing and predicting
-Visualization.ipynb: jupyter notebook file for visualizing the model architectures, result evaluation and model comparison.
-data_loader.py Generating data loader for training, validation and testing
-utils.py Some utility functions being used during the course of the project
-visualize.py some functions for visualization
-kapur.py kapur thresholding
+`model.py` building different CNN and transfer learning architectures
+`config.yml `some configurations for preprocessing, training, testing and predicting
+`Visualization.ipynb`: jupyter notebook file for visualizing the model architectures, result evaluation and model comparison.
+`data_loader.py` Generating data loader for training, validation and testing
+`utils.py` Some utility functions being used during the course of the project
+`visualize.py` some functions for visualization
+`kapur.py` kapur thresholding
+`models ` parent folder stores saved weights .h5 files trained from different model architectures under different preprocessing speficications. Also a history.json
+file would store the model training and validation performance history.
+`report` folder stores some metrics and visualization results for model comparison and evaluation.
 
 
 
