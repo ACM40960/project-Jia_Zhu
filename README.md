@@ -18,7 +18,7 @@ In this project, we aim to distinguish 3 different brain tumor types: glioma(mal
 - [Evaluation](#evaluation)
 - [Prediction](#prediction)
 - [Other Files and Folders](#other-files)
-- [Future works](#furture-work)
+- [Future works](#future-works)
 - [References](#references)
 
 
@@ -184,7 +184,7 @@ file would store the model training and validation performance history.
 
 
 
-## Future Work
+## Future Works
 
 - Data segmentation should be used(when labelled data are available)
 
