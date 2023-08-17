@@ -18,7 +18,7 @@ In this project, we aim to distinguish 3 different brain tumor types: glioma(mal
 - [Evaluation](#evaluation)
 - [Prediction](#prediction)
 - [Other Files and Folders](#other-files)
-- [Future works](#further-work)
+- [Future works](#furture-work)
 - [References](#references)
 
 
@@ -163,14 +163,23 @@ Weights have been loaded, now predicting...
 ### Other files
 
 `model.py` building different CNN and transfer learning architectures
+
 `config.yml `some configurations for preprocessing, training, testing and predicting
+
 `Visualization.ipynb`: jupyter notebook file for visualizing the model architectures, result evaluation and model comparison.
+
 `data_loader.py` Generating data loader for training, validation and testing
+
 `utils.py` Some utility functions being used during the course of the project
+
 `visualize.py` some functions for visualization
+
 `kapur.py` kapur thresholding
+
 `models ` parent folder stores saved weights .h5 files trained from different model architectures under different preprocessing speficications. Also a history.json
+
 file would store the model training and validation performance history.
+
 `report` folder stores some metrics and visualization results for model comparison and evaluation.
 
 
@@ -191,5 +200,6 @@ file would store the model training and validation performance history.
 ## References
 
 [Classification Framework for Medical Diagnosis of Brain Tumor with an Effective Hybrid Transfer Learning Model](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9600529/)
+
 [Human brain tumor classification and segmentation using CNN](https://dl.acm.org/doi/abs/10.1007/s11042-022-13713-2)
 
