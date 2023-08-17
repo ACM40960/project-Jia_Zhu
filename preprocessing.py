@@ -1,68 +1,19 @@
 import numpy as np
-import keras
 import tensorflow as tf
 import cv2
 import os
-import shutil
 from keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import load_img
 from PIL import Image
 import imutils
 from matplotlib import pyplot as plt
 from kapur import kapur_threshold
+from utils import create_dir
+import yaml
+import argparse
 
-def create_dir(newdir, empty = True):
-    """
-    create new folder if the target folder doesnt exist
-    """
-    CHECK_FOLDER = os.path.isdir(newdir)
-    # If folder doesn't exist, then create it.
-    if not CHECK_FOLDER:
-        os.makedirs(newdir)
-        print("created folder : ", newdir)
 
-    else:
-        if empty == True:
-            ## whether to remove all contents in the current augmented data folder and generate new ones
-            shutil.rmtree(newdir)
-            print("current augmented data removed")
-            os.makedirs(newdir)
-            
-        print(newdir, "folder already exists.")
-    
-## save the augmented data and the original ones in new folders
-def data_augmentation(refresh = True, num = 5):
-    """refresh: whether to replace current augmented data and generate new ones
-    num: number of augmented data per image"""
-
-    
-    training_path = "data\\Training"
-    ## destination parent folder for augmented data
-    augmented_path = "data\\augmentation_training"
-    current_directory = os.getcwd()
-    original_path = os.path.join(current_directory,training_path)
-    augmented_path = os.path.join(current_directory,augmented_path)
-
-    ## augmented data generator
-    image_generator = ImageDataGenerator(rotation_range = 90, shear_range = 0.4,zoom_range = 0, samplewise_center=True, 
-                                         vertical_flip = True, horizontal_flip = True, samplewise_std_normalization= True)
-    for subf in  os.listdir(original_path):
-        
-        new_dir = os.path.join(augmented_path, subf)
-        create_dir(new_dir, empty = refresh)
-        for f in os.listdir(os.path.join(original_path, subf)):
-            image_path = os.path.join(original_path, subf,f)
-            img = load_img(image_path)  
-            i = 1
-            img.save(os.path.join(augmented_path, subf, f))
-            for batch in image_generator.flow(x, batch_size = 1, 
-                          save_to_dir = new_dir,  
-                          save_prefix = f.split(".")[0], save_format ='jpg'):
-                i += 1
-                if i > num: 
-                    break
-
-def blur_and_crop(image, blur = "median", cropping= False, kernel = 5, masking = True, plot=False):
+def blur_and_crop(image, blur, cropping= False, kernel = 3, masking = True, plot=False):
     """
     preprocessing:
     1. convert to grayscale and blur the image using median or gaussian filter
@@ -122,7 +73,7 @@ def blur_and_crop(image, blur = "median", cropping= False, kernel = 5, masking =
     return cropped_image
 
 
-def preprocessing(training_path, masking = False, crop = False):
+def preprocessing(training_path, blur_method, masking = False, crop = False):
     """
     preprocess the images in training_path parent folder
     1. create a destination folder for preprocessed images
@@ -149,16 +100,132 @@ def preprocessing(training_path, masking = False, crop = False):
         for f in os.listdir(os.path.join(original_path, subf)):
             image_path = os.path.join(original_path, subf, f)
             img = cv2.imread(image_path)
+
+
             ## apply image transformation
-            new_img = blur_and_crop(img, blur = "median", cropping = crop, kernel = 5, masking = masking, plot=False)
+            new_img = blur_and_crop(img, blur = blur_method, cropping = crop, kernel = 3, masking = masking, plot=False)
+            img = cv2.resize(img, (new_size, new_size)) ## resize the image as they are not of the same sizes
             image = Image.fromarray(new_img)
             image.save(os.path.join(new_dir, f))
-        
+
+
+def visualize_preprocessing_steps(image, blur="median", kernel=5, masking=True, cropping=True, plot=True):
+    """
+    Show each step in preprocessing.
+    """
+    images = []  # List to store images at each step
+    titles = []  # Titles for each step
+
+    # Original Image
+    images.append(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    titles.append('Original Image')
+
+    # Convert to grayscale and blur
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    if blur == "median":
+        blurred = cv2.medianBlur(gray, kernel)
+    elif blur == "gaussian":
+        blurred = cv2.GaussianBlur(gray, (kernel, kernel), 0)
+    images.append(blurred)
+    titles.append('Blurred Image')
+
+    if masking == True:
+        # Kapur Thresholding
+        threshold = kapur_threshold(blurred)
+        binr = cv2.threshold(blurred, threshold, 255, cv2.THRESH_BINARY)[1]
+        images.append(binr)
+        titles.append('Kapur Thresholding')
+
+        # Mask the Blurred Image
+        masked_image = cv2.bitwise_and(blurred, blurred, mask=binr)
+        images.append(masked_image)
+        titles.append('Masked Image')
+
+    # Cropping
+    if cropping == True:
+        thresh = cv2.threshold(masked_image if masking else blurred, 45, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.erode(thresh, None, iterations=2)
+        thresh = cv2.dilate(thresh, None, iterations=2)
+
+        cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = imutils.grab_contours(cnts)
+        c = max(cnts, key=cv2.contourArea)
+
+        extLeft = tuple(c[c[:, :, 0].argmin()][0])
+        extRight = tuple(c[c[:, :, 0].argmax()][0])
+        extTop = tuple(c[c[:, :, 1].argmin()][0])
+        extBot = tuple(c[c[:, :, 1].argmax()][0])
+
+        cropped_image = (masked_image if masking else blurred)[extTop[1]:extBot[1], extLeft[0]:extRight[0]]
+        images.append(cropped_image)
+        titles.append('Cropped Image')
+
+    if plot:
+        plt.figure(figsize=(20, 10))
+        for i, (img, title) in enumerate(zip(images, titles)):
+            plt.subplot(1, len(images), i + 1)
+            cmap = 'gray' if i > 0 else None
+            plt.imshow(img, cmap=cmap)
+            plt.title(title)
+            plt.axis('off')
+        plt.tight_layout()
+        plt.show()
+
+    return cropped_image
+
+
+def visualize_preprocessing(original_directory, processed_directory, masking=True, cropping=True):
+    """
+    Visualize each step in the preprocessing of a random image.
+
+    Parameters:
+    - original_directory: The path to the original images.
+    - processed_directory: The path to the processed images.
+    - masking: If the images have been masked during preprocessing.
+    - cropping: If the images have been cropped during preprocessing.
+    """
+
+    # Choose a random sub-folder (class) from the original directory
+    random_class = np.random.choice(os.listdir(original_directory))
+    original_class_path = os.path.join(original_directory, random_class)
+
+    # Choose a random image from the selected class
+    random_image_name = np.random.choice(os.listdir(original_class_path))
+    original_image_path = os.path.join(original_class_path, random_image_name)
+
+    # Read the chosen image
+    img = cv2.imread(original_image_path)
+
+    visualize_preprocessing_steps(img, blur="median", masking=masking, cropping=cropping) 
 
 if __name__ == "__main__":
+    """
+    we can pass the value of masking as command-line arguments. This is a bool argument,
+    the value of this argument passed through command line when running the script would over-write
+    the value stored in .yml file.
+    
+    """
+
+
+    with open("config.yml") as f:
+        cfg = yaml.load(f, Loader=yaml.FullLoader)
+    blur_method = cfg["blur"]
+    masked = cfg["masked"]
+    new_size = cfg["resized_dim"]
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--masking",
+        default=masked,
+        type=bool,
+    )
+    args = parser.parse_args()
+    masked = args.masking
+    print("Data will be generate, masking = %d"%masked)
+
     ## preprocess the training data,
-    preprocessing(training_path = "data\\Training", masking = False)
-    preprocessing(training_path = "data\\Training", masking = True)
-    ## preprocessing the testing data, masked and unmasked
-    preprocessing(training_path = "data\\Testing", masking = True)
-    preprocessing(training_path = "data\\Testing", masking = False)
+    preprocessing(training_path = "data\\Training", blur_method = blur_method, masking = masked)
+    # #preprocessing(training_path = "data\\Training", blur_method = blur_method, masking = masked)
+    # ## preprocessing the testing data, masked and unmasked
+    #preprocessing(training_path = "data\\Testing", blur_method = blur_method, masking = masked)
+    preprocessing(training_path = "data\\Testing", blur_method = blur_method, masking = masked)

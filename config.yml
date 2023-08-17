@@ -1,20 +1,38 @@
  
- ## training
- epochs: 20
- batch_size: 32
+ ## For preprocessing
 
-
- transfer_learning: "inceptionv3" ## "None", "VGG16" or "inceptionv3"
-
- model_name: cnn2 ## path name for saving model
- augmentation: True
- continue_training: False
- masked: False
- processed: True
-
- seed: 123
+ blur: gaussian ## method for image blurring
+ resized_dim: 256 ## dimension for resized images
  
 
- ## evaluation
+ ## classes names
 
- model_path: models/inceptionv3_aug/weights-01-0.79.hdf5
+ classes: [glioma,meningioma,notumor,pituitary]
+ ## For training
+
+ epochs: 20 ## number of maxmum epochs
+ batch_size: 64 ## batch size
+ learning_rate: 0.0005  ## learnig rate
+
+
+
+ model_type: CNN2 ##  type of model trained:  "VGG19", "inceptionv3", "CNN1",  "CNN2"
+ augmentation: False ## bool, weather to implement data augmentation or not
+ continue_training: False ## if continue from saved weights
+
+## Don't change these values as they are kept the same in the course of the project
+ masked: True ## if masking is applied
+ processed: True ## if preprocessing is applied
+
+ seed: 123 ## the seed state for data generator
+
+
+ 
+
+ ## Only need to set the following configs for evaluation and predicting
+
+ model_path: models/masked_CNN2/weights-06-0.83.h5
+
+
+ ## only for predicting (For image prediction task)
+ predict_folder : data/predict/  ## the path where images to be predicted are stored
